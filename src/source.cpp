@@ -1,4 +1,8 @@
 #include "source.hpp"
+#include "time_calendar.hpp"
+// #include "globals.hpp"
+
+extern Time_calendar tc;
 
 Source::Source(uint16_t counts_in_second) {
     this->counts_in_second = counts_in_second;

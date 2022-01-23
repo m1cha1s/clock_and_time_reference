@@ -1,20 +1,23 @@
 #include <Arduino.h>
 #include <hardware/timer.h>
 #include <hardware/irq.h>
+// #include <pico/multicore.h>
 #include <SevSeg.h>
 
 #include "config.hpp"
-// #include "globals.h"
+// #include "globals.hpp"
 #include "source.hpp"
 #include "time_calendar.hpp"
+#include "alarm.hpp"
 
 #define ALARM_NUM 1
 
-uint8_t source=0;
-
 Time_calendar tc;
 
+uint8_t source=0;
+
 Source sources[3];
+Alarm alarms[2] = {Alarm(25), Alarm(5)};
 
 // Serial interface
 
@@ -52,9 +55,13 @@ void isr_in_32kHz_B();
 
 void source_switch();
 
+// void core1();
+
 // Code start
 
 void setup() {
+  // multicore_launch_core1(core1);
+
   Serial.begin(115200);
 
   for(int i=0; i<3; i++) {
@@ -63,13 +70,13 @@ void setup() {
   }
 
   disp.begin(COMMON_CATHODE,
-             4,
-             digit_pins,
-             segment_pins,
-             true,
-             false, 
-             false,
-             false);
+          4,
+          digit_pins,
+          segment_pins,
+          true,
+          false, 
+          false,
+          false);
   disp.setBrightness(100);
 
   alarm_in_us(4000000/IN_32KHZ_FREQ);
@@ -104,20 +111,56 @@ void loop() {
     if(cmd_len) {
       if(cmd_array[0] == "get_time_date" && cmd_len == 1) {
         Serial.println(tc.time_date());
+        Serial.println("OK");
       }
       if(cmd_array[0] == "set_time" && cmd_len == 4) {
         tc.set_time(cmd_array[1].toInt(),
                     cmd_array[2].toInt(),
                     cmd_array[3].toInt());
+        Serial.println("OK");
       }
       if(cmd_array[0] == "set_date" && cmd_len == 4) {
         tc.set_date(cmd_array[1].toInt(),
                     cmd_array[2].toInt(),
                     cmd_array[3].toInt());
+        Serial.println("OK");
+      }
+      if(cmd_array[0] == "set_alarm" && cmd_len == 8) {
+        int alarm_num = cmd_array[1].toInt();
+        if(alarm_num == 0 || alarm_num == 1) {
+          alarms[alarm_num].set_alarm(cmd_array[2].toInt(),
+                                      cmd_array[3].toInt(),
+                                      cmd_array[4].toInt(),
+                                      cmd_array[5].toInt(),
+                                      cmd_array[6].toInt(),
+                                      cmd_array[7].toInt());
+          Serial.println("OK");
+        }
+      }
+      if(cmd_array[0] == "get_alarm" && cmd_len == 2) {
+        int alarm_num = cmd_array[1].toInt();
+        if(alarm_num == 0 || alarm_num == 1) {
+          Serial.println(alarms[alarm_num].get_alarm());
+          Serial.println("OK");
+        }
+      }
+      if(cmd_array[0] == "alarm_enable" && cmd_len == 2) {
+        int alarm_num = cmd_array[1].toInt();
+        if(alarm_num == 0 || alarm_num == 1) {
+          alarms[alarm_num].enabled = true;
+          Serial.println("OK");
+        }
+      }
+      if(cmd_array[0] == "alarm_disable" && cmd_len == 2) {
+        int alarm_num = cmd_array[1].toInt();
+        if(alarm_num == 0 || alarm_num == 1) {
+          alarms[alarm_num].enabled = false;
+          Serial.println("OK");
+        }
       }
     }
   }
-  
+
   char disp_str[] = "00.00";
 
   if(tc.seconds%2==0)
@@ -129,10 +172,17 @@ void loop() {
   disp.refreshDisplay();
 }
 
+inline void check_alarms() {
+  for(int i = 0; i < 2; i ++) {
+    alarms[i].check_alarm();
+  }
+}
+
 void isr_in_32kHz_A() {
   bool ticked = sources[0].tick();
   if(source == 0 && ticked) {
     tc.tick();
+    check_alarms();
   }
 }
 
@@ -140,6 +190,7 @@ void isr_in_32kHz_B() {
   bool ticked = sources[1].tick();
   if(source == 1 && ticked) {
     tc.tick();
+    check_alarms();
   }
 }
 

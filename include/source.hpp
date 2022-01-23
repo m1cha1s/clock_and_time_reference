@@ -3,7 +3,6 @@
 #include <Arduino.h>
 
 #include "config.hpp"
-#include "globals.hpp"
 
 class Source
 {
