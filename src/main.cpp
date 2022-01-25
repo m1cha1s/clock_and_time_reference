@@ -17,7 +17,7 @@ Time_calendar tc;
 uint8_t source=0;
 
 Source sources[3];
-Alarm alarms[2] = {Alarm(25), Alarm(5)};
+Alarm alarms[2] = {Alarm(4), Alarm(5)};
 
 // Serial interface
 
@@ -144,17 +144,13 @@ void loop() {
           Serial.println("OK");
         }
       }
-      if(cmd_array[0] == "alarm_enable" && cmd_len == 2) {
+      if(cmd_array[0] == "en_alarm" && cmd_len == 3) {
         int alarm_num = cmd_array[1].toInt();
         if(alarm_num == 0 || alarm_num == 1) {
-          alarms[alarm_num].enabled = true;
-          Serial.println("OK");
-        }
-      }
-      if(cmd_array[0] == "alarm_disable" && cmd_len == 2) {
-        int alarm_num = cmd_array[1].toInt();
-        if(alarm_num == 0 || alarm_num == 1) {
-          alarms[alarm_num].enabled = false;
+          if(cmd_array[2] == 0)
+            alarms[alarm_num].enabled = false;
+          else
+            alarms[alarm_num].enabled = true;
           Serial.println("OK");
         }
       }
