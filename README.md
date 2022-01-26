@@ -27,7 +27,7 @@ There are two buttons to allow user to select what he wants to see on the displa
 
 #### Commands
 
-`Note: all command return "OK" on success`
+*Note: all command return "OK" on success*
 
  - get_time_date -> returns time & date in YYYY:MM:DD:HH:MM:SS format
  - set_time HH MM SS
