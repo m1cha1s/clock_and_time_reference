@@ -66,3 +66,10 @@ There are two buttons to allow user to select what he wants to see on the displa
 | GP19 | B segment |
 | GP20 | C segment |
 | GP21 | D segment |
+
+## Photos
+
+![time](photos/prototype/IMG_20220126_235642.jpg)
+![seconds](photos/prototype/IMG_20220126_235653.jpg)
+![date](photos/prototype/IMG_20220126_235651.jpg)
+![year](photos/prototype/IMG_20220126_235658.jpg)
