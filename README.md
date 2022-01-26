@@ -8,7 +8,7 @@ Clock has 3 sources that it switches automatically. Two of those sources are ext
 
 ### Alarms
 
-Clock module also consists of two programmable alarms that, have independent outputs. Each alarm can be programmed to trigger on a specific date and time or can operate cyclicly.
+Clock module also consists of two programmable alarms that have independent outputs. Each alarm can be programmed to trigger on a specific date and time or can operate cyclicly.
 
 ### Seven segment display
 
