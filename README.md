@@ -69,7 +69,18 @@ There are two buttons to allow user to select what he wants to see on the displa
 
 ## Photos
 
+### Time
+
 ![time](photos/prototype/IMG_20220126_235642.jpg)
+
+### Seconds
+
 ![seconds](photos/prototype/IMG_20220126_235653.jpg)
+
+### Date
+
 ![date](photos/prototype/IMG_20220126_235651.jpg)
+
+### Year
+
 ![year](photos/prototype/IMG_20220126_235658.jpg)
