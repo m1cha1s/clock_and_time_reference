@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <Scheduler.h>
 #include <hardware/timer.h>
 #include <hardware/irq.h>
 // #include <pico/multicore.h>
@@ -17,7 +18,7 @@ Time_calendar tc;
 uint8_t source=0;
 
 Source sources[3];
-Alarm alarms[2] = {Alarm(4), Alarm(5)};
+Alarm alarms[2] = {Alarm(ALARM_0), Alarm(ALARM_1)};
 
 // Serial interface
 
@@ -55,7 +56,7 @@ void isr_in_32kHz_B();
 
 void source_switch();
 
-// void core1();
+void physicalInterface();
 
 // Code start
 
@@ -69,15 +70,9 @@ void setup() {
     sources[i] = *newSource;
   }
 
-  disp.begin(COMMON_CATHODE,
-          4,
-          digit_pins,
-          segment_pins,
-          true,
-          false, 
-          false,
-          false);
-  disp.setBrightness(100);
+  Scheduler.start(physicalInterface);
+
+  
 
   alarm_in_us(4000000/IN_32KHZ_FREQ);
 
@@ -156,16 +151,46 @@ void loop() {
       }
     }
   }
+}
 
-  char disp_str[] = "00.00";
+void physicalInterface() {
+  pinMode(SHIFT_KEY, INPUT_PULLUP);
+  pinMode(ALT_KEY, INPUT_PULLUP);
 
-  if(tc.seconds%2==0)
-    sprintf(disp_str, "%02i.%02i", tc.hours, tc.minutes);
-  else
-    sprintf(disp_str, "%02i%02i", tc.hours, tc.minutes);
+  disp.begin(COMMON_CATHODE,
+          4,
+          digit_pins,
+          segment_pins,
+          true,
+          false, 
+          false,
+          false);
+  disp.setBrightness(100);
 
-  disp.setChars(disp_str);
-  disp.refreshDisplay();
+  for(;;) {
+    char disp_str[8];
+
+    if(digitalRead(SHIFT_KEY)) {
+      if(digitalRead(ALT_KEY)) {
+        if(tc.seconds%2==0)
+          sprintf(disp_str, "%02i.%02i", tc.hours, tc.minutes);
+        else
+          sprintf(disp_str, "%02i%02i", tc.hours, tc.minutes);
+      } else {
+        sprintf(disp_str, "%04i", tc.seconds);
+      }
+    } else {
+      if(digitalRead(ALT_KEY)) {
+        sprintf(disp_str, "%02i.%02i", tc.days, tc.months);
+      } else {
+        sprintf(disp_str, "%04i", tc.years);
+      }
+    }
+
+    disp.setChars(disp_str);
+    disp.refreshDisplay();
+    yield();
+  }
 }
 
 inline void check_alarms() {

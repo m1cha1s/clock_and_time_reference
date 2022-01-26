@@ -23,7 +23,12 @@ void Time_calendar::tick() {
       hours=0;
     }
 
-    if(!(days%day_count[months]) && days) {
+    int leap_year = 0;
+    if((years%400==0 || (years%4==0 && years%100!=0)) && months==1) {
+      leap_year = 1;
+    }
+
+    if(!(days%day_count[months] + leap_year) && days) {
       months++;
       days=0;
     }
